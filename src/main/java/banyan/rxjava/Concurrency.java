@@ -14,11 +14,11 @@ import rx.schedulers.Schedulers;
 public class Concurrency {
 
     public static void testEntry() {
-        //syncBasic();
-        //asyncBasicWithSubscribeOn();
-        asyncBasicWithObserveOn();
-        //concurrencyContractViolation();
-        //concurrencyContractViolationFix();
+        // syncBasic();
+        // asyncBasicWithSubscribeOn();
+        // asyncBasicWithObserveOn();
+        // concurrencyContractViolation();
+        // concurrencyContractViolationFix();
         Utils.threadSleep(10000);
     }
 

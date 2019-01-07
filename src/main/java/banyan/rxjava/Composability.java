@@ -18,14 +18,30 @@ import rx.schedulers.Schedulers;
 public class Composability {
 
     public static void testEntry() {
+        //runCityAroundLatLng();
+        //runPopulationOf();
         //composeFunctionsWithoutFlatMap();
-        composeFunctionsFlatMap();
+        //composeFunctionsFlatMap();
         //mergeStreams();
         //zipStreams();
-        //findPopulationSample1();
-        //citiesAroundLatLngSample1();
-        //cityAroundLatLngSample1();
         Utils.threadSleep(10000);
+    }
+
+    /**
+     * Composing streams without flatmap, one of the most important operator you would use with Rx
+     */
+    private static void runCityAroundLatLng() {
+        double hydLat = 17.4126274;
+        double hydLng = 78.2679609;
+        cityAroundLatLng(hydLat, hydLng).
+                subscribe(city -> Utils.printVerbose("runCityAroundLatLng",city));
+        Utils.printVerbose("End of main function");
+    }
+
+    private static void runPopulationOf() {
+        populationOf("hyderabad").
+                subscribe(population -> Utils.printVerbose("runPopulationOf", String.valueOf(population)));
+        Utils.printVerbose("End of main function");
     }
 
     /**
@@ -38,7 +54,6 @@ public class Composability {
                 map(x -> populationOf(x)).
                 subscribe(population -> Utils.printVerbose("composeFunctionsFlatMap", String.valueOf(population)));
         Utils.printVerbose("End of main function");
-        Utils.threadSleep(10000);
     }
 
     /**
@@ -49,7 +64,7 @@ public class Composability {
         double hydLng = 78.2679609;
         cityAroundLatLng(hydLat, hydLng).
                 flatMap(city -> populationOf(city)).
-                subscribe(population -> Utils.printVerbose("composeFunctionsFlatMap", String.valueOf(population)));
+                subscribe(population -> Utils.printVerbose("composeFunctionsFlatMap:Population:", String.valueOf(population)));
         Utils.printVerbose("End of main function");
     }
 
@@ -81,6 +96,8 @@ public class Composability {
                 return new Pair<Long, Long>(a_val, b_bal);
             }
         }).subscribe(value -> Utils.printVerbose("mergeStreams:" + value.first + ", " + value.second));
+
+        Utils.threadSleep(10000);
     }
 
     private static void citiesAroundLatLngSample1() {
@@ -123,7 +140,7 @@ public class Composability {
         Utils.threadSleep(25000);
     }
 
-    private static Observable<Integer> populationOf(String query) {
+    public static Observable<Integer> populationOf(String query) {
         final ApiFactory api = new ApiFactory();
         GeoNames geoNames = api.geoNames();
         return geoNames.search(query)
@@ -135,7 +152,7 @@ public class Composability {
                 .onErrorReturn(th -> 0);
     }
 
-    private static Observable<String> citiesAroundLatLng(double lat, double lng) {
+    public static Observable<String> citiesAroundLatLng(double lat, double lng) {
         final ApiFactory api = new ApiFactory();
         MeetupApi meetup = api.meetup();
         return meetup.listCities(lat, lng).
@@ -144,7 +161,7 @@ public class Composability {
                 map(City::getCity);
     }
 
-    private static Observable<String> cityAroundLatLng(double lat, double lng) {
+    public static Observable<String> cityAroundLatLng(double lat, double lng) {
         final ApiFactory api = new ApiFactory();
         MeetupApi meetup = api.meetup();
         return meetup.listCities(lat, lng).

@@ -7,19 +7,21 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Func0;
+import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
 public class Terminology {
 
     public static void testEntry() {
         //rxSubscriberInterface();
+        // onNext is always serialized, gauranteed by observable
         //serializeContractBroken();
-        //serilizeContractRestored();
+        //
+        // workOnSubscribe();
         //observableMultipleSubscribers();
         //observableIntervalUnsubscribe();
         //observableDefaultExecution();
         //observableLocalIntervalUnsubscribe();
-        workOnSubscribe();
     }
 
 
@@ -30,6 +32,18 @@ public class Terminology {
         Utils.printVerbose("rxSubscriberInterface", "start");
         //rxObservableRange(100, 20).serialize().subscribe(new Subscriber<Integer>() {
         Observable.range(100, 20).subscribe(new Subscriber<Integer>() {
+            /**
+             * Called every time a new data is available
+             */
+            @Override
+            public void onNext(Integer integer) {
+                Utils.printVerbose("Streaming integers, curr value: " + integer);
+                // Interface supports unsubscribe as well.
+                // Once you unsubscribe no more events will be fired
+                // Try uncomment below, you will get onNext only once
+                // this.unsubscribe();
+            }
+
             /**
              * Called on completion, no more events after it is complete
              */
@@ -45,18 +59,6 @@ public class Terminology {
             @Override
             public void onError(Throwable e) {
 
-            }
-
-            /**
-             * Called everytime a new data is available
-             */
-            @Override
-            public void onNext(Integer integer) {
-                // Interface supports unsubscribe as well.
-                // Once you unsubscribe no more events will be fired
-                Utils.printVerbose("Streaming integers, curr value: " + integer);
-                // Try uncomment below, you will get onNext only once
-                // this.unsubscribe();
             }
         });
 
@@ -83,12 +85,12 @@ public class Terminology {
      * Show the work should happen in the chain on subscribe only and not construction
      */
     private static void workOnSubscribe() {
-        getIntegerStreamBuggy();
-        //getIntegerStreamFixed();
+        //getIntegerStreamBuggy();
+        getIntegerStreamFixed();
     }
 
     /**
-     * Resolve is happening out the chain
+     * Resolve is happening out the chain, avoid doing that.
      */
     private static Observable<Integer> getIntegerStreamBuggy() {
         int rand = (int)(Math.random()*100);
@@ -101,6 +103,9 @@ public class Terminology {
         }
     }
 
+    /**
+     * Resolve happening after subscribe
+     */
     private static Observable<Integer> getIntegerStreamFixed() {
         return Observable.defer(new Func0<Observable<Integer>>() {
             @Override
@@ -140,7 +145,8 @@ public class Terminology {
 
     // Default execution
     private static void observableIntervalUnsubscribe() {
-        Observable<String> observable = Observable.interval(50, TimeUnit.MILLISECONDS).map(val -> String.valueOf(val));
+        Observable<String> observable = Observable.interval(50, TimeUnit.MILLISECONDS)
+                .map(val -> String.valueOf(val));
         Subscription subscription = observable.subscribe(word -> Utils.printVerbose("observableIntervalUnsubscribe", word));
         Utils.printVerbose("Main thread end of code");
         Utils.threadSleep(4000);

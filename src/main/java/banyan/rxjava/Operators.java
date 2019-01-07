@@ -8,11 +8,11 @@ import rx.functions.Func1;
 public class Operators {
 
     public static void testEntry() {
-        demoMapOperator();
+        //demoMapOperator();
         //debugInSyncWorld(2);
         //debugInASyncWorld(2).subscribe(x -> Utils.printVerbose(x));
         //demoDoOnNext();
-        //demoRetryOperator();
+        demoRetryOperator();
     }
 
     private static void demoMapOperator() {
@@ -94,7 +94,7 @@ public class Operators {
                     }
                 })
                 .map(x -> String.valueOf("stream value: " + x))
-                //.retry()
+                .retry()
                 //.retry(3)
                 .subscribe(new Action1<String>() {
                     @Override
